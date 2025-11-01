@@ -22,7 +22,7 @@ namespace LearnBridge_E_LearningPlatform.Models
         [Required]
         public required string Role { get; set; } // Admin, Teacher, Student
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime Date { get; set; } = DateTime.Now;
 
         // Navigation Properties
         public Teacher? Teacher { get; set; }

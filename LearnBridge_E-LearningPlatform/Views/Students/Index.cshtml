@@ -1,0 +1,36 @@
+﻿@model IEnumerable<LearnBridge_E_LearningPlatform.Models.Student>
+
+@{
+    ViewData["Title"] = "Students List";
+}
+
+<h2>Students</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Add New Student</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Student Name</th>
+            <th>Weak Subjects</th>
+           
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var student in Model)
+        {
+            <tr>
+                <td>@student.User?.Name</td>
+                <td>@student.StudentName</td>
+                <td>@student.WeakSubjects</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@student.StudentId" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@student.StudentId" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

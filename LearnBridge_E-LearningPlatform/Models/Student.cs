@@ -5,6 +5,8 @@ namespace LearnBridge_E_LearningPlatform.Models
     public class Student
     {
         public int StudentId { get; set; }
+        [Required, MaxLength(100)]
+        public String StudentName { get; set; } = string.Empty;
 
         [Required]
         public int UserId { get; set; }

@@ -5,10 +5,10 @@ using System.Net.WebSockets;
 namespace LearnBridge_E_LearningPlatform.Controllers
 {
     
-    public class CourseController : Controller
+    public class CoursesController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public CourseController(ApplicationDbContext context)
+        public CoursesController(ApplicationDbContext context)
         {
             _context = context;
         }

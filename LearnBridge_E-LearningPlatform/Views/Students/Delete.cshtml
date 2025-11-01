@@ -1,0 +1,28 @@
+﻿@model LearnBridge_E_LearningPlatform.Models.Student
+
+@{
+    ViewData["Title"] = "Delete Student";
+}
+
+<h2>Delete Student</h2>
+
+<h4>Are you sure you want to delete this student?</h4>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">User</dt>
+        <dd class="col-sm-10">@Model.User?.Name</dd>
+
+        <dt class="col-sm-2">Student Name</dt>
+        <dd class="col-sm-10">@Model.StudentName</dd>
+
+        <dt class="col-sm-2">Weak Subjects</dt>
+        <dd class="col-sm-10">@Model.WeakSubjects</dd>
+    </dl>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" asp-for="StudentId" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
