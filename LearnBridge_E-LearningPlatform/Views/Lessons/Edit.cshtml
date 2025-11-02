@@ -1,0 +1,51 @@
+﻿@model LearnBridge_E_LearningPlatform.Models.Lesson
+
+@{
+    ViewData["Title"] = "Edit Lesson";
+}
+
+<h2 class="text-center mb-4">Edit Lesson</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="LessonId" />
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">Title</label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Content" class="form-label">Content</label>
+        <textarea asp-for="Content" class="form-control"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="VideoUrl" class="form-label">Video URL</label>
+        <input asp-for="VideoUrl" class="form-control" />
+        <span asp-validation-for="VideoUrl" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Upload Material</label>
+        <input type="file" name="MaterialUpload" class="form-control" />
+        @if (!string.IsNullOrEmpty(Model.MaterialFile))
+        {
+            <p>Current File: <a href="~/materials/@Model.MaterialFile" target="_blank">Download</a></p>
+        }
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CourseId" class="form-label">Select Course</label>
+        <select asp-for="CourseId" class="form-select" asp-items="ViewBag.Courses"></select>
+        <span asp-validation-for="CourseId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Update Lesson</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

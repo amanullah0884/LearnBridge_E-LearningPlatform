@@ -1,0 +1,64 @@
+﻿@model IEnumerable<LearnBridge_E_LearningPlatform.Models.Lesson>
+
+@{
+    ViewData["Title"] = "Lessons List";
+}
+
+<h2 class="text-center mb-4">All Lessons</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Add New Lesson</a>
+</p>
+
+<table class="table table-bordered table-striped mt-3">
+    <thead class="table-dark">
+        <tr>
+            <th>Title</th>
+            <th>Content</th>
+            <th>Video</th>
+            <th>Material</th>
+            <th>Course</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var lesson in Model)
+        {
+            <tr>
+                <td>@lesson.Title</td>
+                <td>@lesson.Content</td>
+
+                <!-- Video Link -->
+                <td>
+                    @if (!string.IsNullOrEmpty(lesson.VideoUrl))
+                    {
+                        <a href="@lesson.VideoUrl" target="_blank">Watch Video</a>
+                    }
+                    else
+                    {
+                        <span>No Video</span>
+                    }
+                </td>
+
+                // Material File Link
+                <td>
+                    @if (!string.IsNullOrEmpty(lesson.MaterialFile))
+                    {
+                        <a href="~/materials/@lesson.MaterialFile" target="_blank">Download</a>
+                    }
+                    else
+                    {
+                        <span>No Material</span>
+                    }
+                </td>
+
+                <td>@lesson.Course?.Title</td>
+
+                <!-- Actions -->
+                <td>
+                    <a asp-action="Edit" asp-route-id="@lesson.LessonId" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@lesson.LessonId" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
