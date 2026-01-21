@@ -12,6 +12,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 var jwt = builder.Configuration.GetSection("Jwt");
+builder.Services.AddScoped<JwtService>();
 builder.Services.AddAuthentication()
     .AddJwtBearer(options =>
     {
