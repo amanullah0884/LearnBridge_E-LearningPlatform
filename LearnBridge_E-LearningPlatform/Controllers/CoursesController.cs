@@ -1,31 +1,37 @@
 ﻿using LearnBridge_E_LearningPlatform.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.WebSockets;
 
 namespace LearnBridge_E_LearningPlatform.Controllers
 {
-    
     public class CoursesController : Controller
     {
         private readonly ApplicationDbContext _context;
+
         public CoursesController(ApplicationDbContext context)
         {
             _context = context;
         }
 
+        //  Public  anyone can see courses
         public IActionResult Index()
         {
             var courses = _context.Courses.ToList();
             return View(courses);
         }
+
+        //  Only Teacher & Admin
+        [Authorize(Roles = "Teacher,Admin")]
         public IActionResult Create()
         {
             return View();
         }
+
         [HttpPost]
+        [Authorize(Roles = "Teacher,Admin")]
         public IActionResult Create(Course course)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 _context.Courses.Add(course);
                 _context.SaveChanges();
@@ -33,17 +39,21 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             }
             return View(course);
         }
-        [HttpGet]
-        public  IActionResult Edit(int id)
+
+        //  Only Teacher & Admin
+        [Authorize(Roles = "Teacher,Admin")]
+        public IActionResult Edit(int id)
         {
-            var  couse =_context.Courses.Find(id);
-            if(couse == null)
+            var course = _context.Courses.Find(id);
+            if (course == null)
             {
                 return NotFound();
             }
-            return View(couse);
+            return View(course);
         }
+
         [HttpPost]
+        [Authorize(Roles = "Teacher,Admin")]
         public IActionResult Edit(int id, Course course)
         {
             if (id != course.CourseId) return NotFound();
@@ -56,15 +66,18 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             }
             return View(course);
         }
+
+        // Only Admin (optional decision)
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(int id)
         {
             var course = _context.Courses.Find(id);
             if (course == null) return NotFound();
-            return View(course); 
+            return View(course);
         }
 
-       
         [HttpPost, ActionName("Delete")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteConfirmed(int id)
         {
             var course = _context.Courses.Find(id);
@@ -75,7 +88,5 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
-
-
     }
 }

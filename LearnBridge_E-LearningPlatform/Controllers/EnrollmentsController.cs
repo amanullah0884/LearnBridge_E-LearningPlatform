@@ -1,4 +1,5 @@
 ﻿using LearnBridge_E_LearningPlatform.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,8 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             _context = context;
         }
 
-
+        //  Admin & Teacher only
+        [Authorize(Roles = "Admin,Teacher")]
         public async Task<IActionResult> Index()
         {
             var enrollments = await _context.Enrollments
@@ -24,23 +26,25 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             return View(enrollments);
         }
 
-
+        //  Student only (Enroll)
+        [Authorize(Roles = "Student")]
         [HttpGet]
         public IActionResult Create()
         {
             ViewBag.Students = new SelectList(_context.Students.ToList(), "StudentId", "StudentName");
             ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title");
-            ViewBag.Statuses = new SelectList(new List<string> { "Active", "Completed", "Canceled" });
+            ViewBag.Statuses = new SelectList(new List<string> { "Active" });
             return View();
         }
 
-
+        [Authorize(Roles = "Student")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Enrollment enrollment)
         {
             if (ModelState.IsValid)
             {
+                enrollment.Status = "Active";
                 _context.Enrollments.Add(enrollment);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -48,10 +52,11 @@ namespace LearnBridge_E_LearningPlatform.Controllers
 
             ViewBag.Students = new SelectList(_context.Students.ToList(), "StudentId", "StudentName", enrollment.StudentId);
             ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title", enrollment.CourseId);
-            ViewBag.Statuses = new SelectList(new List<string> { "Active", "Completed", "Canceled" }, enrollment.Status);
             return View(enrollment);
         }
 
+        //  Admin & Teacher
+        [Authorize(Roles = "Admin,Teacher")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -60,12 +65,13 @@ namespace LearnBridge_E_LearningPlatform.Controllers
 
             ViewBag.Students = new SelectList(_context.Students.ToList(), "StudentId", "StudentName", enrollment.StudentId);
             ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title", enrollment.CourseId);
-            ViewBag.Statuses = new SelectList(new List<string> { "Active", "Completed", "Canceled" }, enrollment.Status);
+            ViewBag.Statuses = new SelectList(
+                new List<string> { "Active", "Completed", "Canceled" }, enrollment.Status);
 
             return View(enrollment);
         }
 
-
+        [Authorize(Roles = "Admin,Teacher")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Enrollment enrollment)
@@ -74,36 +80,29 @@ namespace LearnBridge_E_LearningPlatform.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(enrollment);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!EnrollmentExists(enrollment.EnrollmentId)) return NotFound();
-                    else throw;
-                }
+                _context.Update(enrollment);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
 
-            ViewBag.Students = new SelectList(_context.Students.ToList(), "StudentId", "StudentName", enrollment.StudentId);
-            ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title", enrollment.CourseId);
-            ViewBag.Statuses = new SelectList(new List<string> { "Active", "Completed", "Canceled" }, enrollment.Status);
             return View(enrollment);
         }
 
+        // Admin only
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
             var enrollment = await _context.Enrollments
-                                    .Include(e => e.Student)
-                                    .Include(e => e.Course)
-                                    .FirstOrDefaultAsync(e => e.EnrollmentId == id);
+                .Include(e => e.Student)
+                .Include(e => e.Course)
+                .FirstOrDefaultAsync(e => e.EnrollmentId == id);
+
             if (enrollment == null) return NotFound();
             return View(enrollment);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -115,11 +114,6 @@ namespace LearnBridge_E_LearningPlatform.Controllers
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool EnrollmentExists(int id)
-        {
-            return _context.Enrollments.Any(e => e.EnrollmentId == id);
         }
     }
 }
