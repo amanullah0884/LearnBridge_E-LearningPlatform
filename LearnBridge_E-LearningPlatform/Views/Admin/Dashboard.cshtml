@@ -1,0 +1,58 @@
+﻿@model LearnBridge_E_LearningPlatform.Models.AdminDashboardViewModel
+
+<h2>Admin Dashboard</h2>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card p-3 bg-light">
+            <h4>Students</h4>
+            <h2>@Model.TotalStudents</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3 bg-light">
+            <h4>Teachers</h4>
+            <h2>@Model.TotalTeachers</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3 bg-light">
+            <h4>Courses</h4>
+            <h2>@Model.TotalCourses</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3 bg-light">
+            <h4>Enrollments</h4>
+            <h2>@Model.TotalEnrollments</h2>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<h4>Recent Enrollments</h4>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Course</th>
+            <th>Status</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var e in Model.RecentEnrollments)
+        {
+            <tr>
+                <td>@e.Course?.Title</td>
+                <td>@e.Status</td>
+                <td>@e.EnrolledAt.ToShortDateString()</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

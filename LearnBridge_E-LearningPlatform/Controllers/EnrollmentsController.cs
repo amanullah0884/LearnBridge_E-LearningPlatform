@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace LearnBridge_E_LearningPlatform.Controllers
 {
@@ -15,25 +16,26 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             _context = context;
         }
 
-        //  Admin & Teacher only
+        // Admin & Teacher
         [Authorize(Roles = "Admin,Teacher")]
         public async Task<IActionResult> Index()
         {
             var enrollments = await _context.Enrollments
-                                    .Include(e => e.Student)
-                                    .Include(e => e.Course)
-                                    .ToListAsync();
+                .Include(e => e.Student)
+                .Include(e => e.Course)
+                .ToListAsync();
+
             return View(enrollments);
         }
 
-        //  Student only (Enroll)
+      
+        // Student Create Enrollment
+        
         [Authorize(Roles = "Student")]
         [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.Students = new SelectList(_context.Students.ToList(), "StudentId", "StudentName");
             ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title");
-            ViewBag.Statuses = new SelectList(new List<string> { "Active" });
             return View();
         }
 
@@ -44,18 +46,42 @@ namespace LearnBridge_E_LearningPlatform.Controllers
         {
             if (ModelState.IsValid)
             {
+                //  link enrollment with loggedin user
+                enrollment.ApplicationUserId =
+                    User.FindFirstValue(ClaimTypes.NameIdentifier);
+
                 enrollment.Status = "Active";
+                enrollment.EnrolledAt = DateTime.Now;
+
                 _context.Enrollments.Add(enrollment);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                //  redirect to students own list
+                return RedirectToAction(nameof(MyEnrollments));
             }
 
-            ViewBag.Students = new SelectList(_context.Students.ToList(), "StudentId", "StudentName", enrollment.StudentId);
             ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title", enrollment.CourseId);
             return View(enrollment);
         }
 
-        //  Admin & Teacher
+        
+        // Student  Own Enrollments
+    
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> MyEnrollments()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var myEnrollments = await _context.Enrollments
+                .Include(e => e.Course)
+                .Where(e => e.ApplicationUserId == userId)
+                .ToListAsync();
+
+            return View(myEnrollments);
+        }
+
+        // Admin & Teacher  Edit
+       
         [Authorize(Roles = "Admin,Teacher")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -63,8 +89,6 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             var enrollment = await _context.Enrollments.FindAsync(id);
             if (enrollment == null) return NotFound();
 
-            ViewBag.Students = new SelectList(_context.Students.ToList(), "StudentId", "StudentName", enrollment.StudentId);
-            ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title", enrollment.CourseId);
             ViewBag.Statuses = new SelectList(
                 new List<string> { "Active", "Completed", "Canceled" }, enrollment.Status);
 
@@ -88,13 +112,13 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             return View(enrollment);
         }
 
-        // Admin only
+        // Admin  Delete
+
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
             var enrollment = await _context.Enrollments
-                .Include(e => e.Student)
                 .Include(e => e.Course)
                 .FirstOrDefaultAsync(e => e.EnrollmentId == id);
 

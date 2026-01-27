@@ -6,7 +6,12 @@ namespace LearnBridge_E_LearningPlatform.Models
     {
         public int EnrollmentId { get; set; }
 
+        //  logged-in user
         [Required]
+        public string ApplicationUserId { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
+
+        // academic student reference
         public int StudentId { get; set; }
         public Student? Student { get; set; }
 
@@ -17,6 +22,6 @@ namespace LearnBridge_E_LearningPlatform.Models
         public DateTime EnrolledAt { get; set; } = DateTime.Now;
 
         [Required, MaxLength(50)]
-        public string Status { get; set; } = "Active"; // Active, Completed, Canceled
+        public string Status { get; set; } = "Active";
     }
 }
