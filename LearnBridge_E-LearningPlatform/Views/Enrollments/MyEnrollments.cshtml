@@ -1,0 +1,40 @@
+﻿@model IEnumerable<LearnBridge_E_LearningPlatform.Models.Enrollment>
+
+@{
+    ViewData["Title"] = "My Enrollments";
+}
+
+<h2 class="mb-4">My Enrolled Courses</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        You have not enrolled in any course yet.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Course Title</th>
+                <th>Status</th>
+                <th>Enrolled Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Course?.Title</td>
+                    <td>
+                        <span class="badge bg-success">
+                            @item.Status
+                        </span>
+                    </td>
+                    <td>@item.EnrolledAt.ToString("dd MMM yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

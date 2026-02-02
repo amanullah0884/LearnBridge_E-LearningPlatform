@@ -16,26 +16,26 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             _context = context;
         }
 
-        // Admin & Teacher
+        // Admin & Teacher ALL ENROLLMENTS
+  
         [Authorize(Roles = "Admin,Teacher")]
         public async Task<IActionResult> Index()
         {
             var enrollments = await _context.Enrollments
-                .Include(e => e.Student)
                 .Include(e => e.Course)
+                .Include(e => e.ApplicationUser)
                 .ToListAsync();
 
             return View(enrollments);
         }
 
-      
-        // Student Create Enrollment
-        
+        // STUDENT  CREATE ENROLLMENT
+
         [Authorize(Roles = "Student")]
         [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title");
+            ViewBag.Courses = new SelectList(_context.Courses, "CourseId", "Title");
             return View();
         }
 
@@ -44,29 +44,37 @@ namespace LearnBridge_E_LearningPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Enrollment enrollment)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            //  Duplicate enrollment prevent
+            bool alreadyEnrolled = await _context.Enrollments.AnyAsync(e =>
+                e.ApplicationUserId == userId &&
+                e.CourseId == enrollment.CourseId);
+
+            if (alreadyEnrolled)
+            {
+                ModelState.AddModelError("", "You are already enrolled in this course.");
+            }
+
             if (ModelState.IsValid)
             {
-                //  link enrollment with loggedin user
-                enrollment.ApplicationUserId =
-                    User.FindFirstValue(ClaimTypes.NameIdentifier);
-
+                enrollment.ApplicationUserId = userId;
                 enrollment.Status = "Active";
                 enrollment.EnrolledAt = DateTime.Now;
 
                 _context.Enrollments.Add(enrollment);
                 await _context.SaveChangesAsync();
 
-                //  redirect to students own list
                 return RedirectToAction(nameof(MyEnrollments));
             }
 
-            ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title", enrollment.CourseId);
+            ViewBag.Courses = new SelectList(_context.Courses, "CourseId", "Title", enrollment.CourseId);
             return View(enrollment);
         }
 
-        
-        // Student  Own Enrollments
-    
+      
+        // STUDENT  OWN ENROLLMENTS
+   
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> MyEnrollments()
         {
@@ -80,8 +88,8 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             return View(myEnrollments);
         }
 
-        // Admin & Teacher  Edit
-       
+        // ADMIN & TEACHER  EDIT STATUS
+  
         [Authorize(Roles = "Admin,Teacher")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -90,7 +98,8 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             if (enrollment == null) return NotFound();
 
             ViewBag.Statuses = new SelectList(
-                new List<string> { "Active", "Completed", "Canceled" }, enrollment.Status);
+                new List<string> { "Active", "Completed", "Canceled" },
+                enrollment.Status);
 
             return View(enrollment);
         }
@@ -102,6 +111,17 @@ namespace LearnBridge_E_LearningPlatform.Controllers
         {
             if (id != enrollment.EnrollmentId) return NotFound();
 
+            //  Ownership protect
+            var existing = await _context.Enrollments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.EnrollmentId == id);
+
+            if (existing == null) return NotFound();
+
+            enrollment.ApplicationUserId = existing.ApplicationUserId;
+            enrollment.EnrolledAt = existing.EnrolledAt;
+            enrollment.CourseId = existing.CourseId;
+
             if (ModelState.IsValid)
             {
                 _context.Update(enrollment);
@@ -112,8 +132,8 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             return View(enrollment);
         }
 
-        // Admin  Delete
 
+        // ADMIN  DELETE
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
