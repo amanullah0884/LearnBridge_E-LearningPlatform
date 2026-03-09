@@ -1,6 +1,7 @@
 ﻿using LearnBridge_E_LearningPlatform.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LearnBridge_E_LearningPlatform.Controllers
 {
@@ -87,6 +88,19 @@ namespace LearnBridge_E_LearningPlatform.Controllers
                 _context.SaveChanges();
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var course = await _context.Courses
+                .Include(c=> c.Teacher)
+                .Include(c => c.Lessons)
+                .FirstOrDefaultAsync(c => c.CourseId == id);
+            if(course ==null)
+            {
+                 return NotFound();
+            }    
+            return View(course);
         }
     }
 }
