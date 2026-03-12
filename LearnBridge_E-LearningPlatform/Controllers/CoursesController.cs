@@ -13,14 +13,8 @@ namespace LearnBridge_E_LearningPlatform.Controllers
         {
             _context = context;
         }
-
-        //  Public  anyone can see courses
-        public IActionResult Index()
-        {
-            var courses = _context.Courses.ToList();
-            return View(courses);
-        }
-
+        
+       
         //  Only Teacher & Admin
         [Authorize(Roles = "Teacher,Admin")]
         public IActionResult Create()
@@ -102,5 +96,13 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             }    
             return View(course);
         }
+
+        [HttpGet]
+        public IActionResult Index()
+         {
+            var courses = _context.Courses.ToList();
+            return View(courses);
     }
+
+}
 }

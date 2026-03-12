@@ -40,6 +40,7 @@ namespace LearnBridge_E_LearningPlatform.Controllers
                 {
                     var fileName = Path.GetFileName(MaterialUpload.FileName);
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/materials", fileName);
+                   
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {

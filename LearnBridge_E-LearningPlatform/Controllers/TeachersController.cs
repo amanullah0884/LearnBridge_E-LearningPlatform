@@ -20,7 +20,7 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             return View(teacher);
         }
 
-        [HttpGet]
+        [HttpPost]
         public IActionResult Create()
         {
             ViewBag.Users = new SelectList(_context.Users.ToList(), "UserId", "Name");
