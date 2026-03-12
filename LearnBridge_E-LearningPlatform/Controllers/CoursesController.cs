@@ -20,7 +20,6 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             var courses = _context.Courses
                 .Include(c => c.Teacher)
                 .ToList();
-
             return View(courses);
         }
 
