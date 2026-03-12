@@ -13,12 +13,36 @@ namespace LearnBridge_E_LearningPlatform.Controllers
         {
             _context = context;
         }
-        
-       
-        //  Only Teacher & Admin
+
+        // Course List
+        public IActionResult Index()
+        {
+            var courses = _context.Courses
+                .Include(c => c.Teacher)
+                .ToList();
+
+            return View(courses);
+        }
+
+        // Course Details
+        public async Task<IActionResult> Details(int id)
+        {
+            var course = await _context.Courses
+                .Include(c => c.Teacher)
+                .Include(c => c.Lessons)
+                .FirstOrDefaultAsync(c => c.CourseId == id);
+
+            if (course == null)
+                return NotFound();
+
+            return View(course);
+        }
+
+        // Create Course
         [Authorize(Roles = "Teacher,Admin")]
         public IActionResult Create()
         {
+            ViewBag.Teachers = _context.Teachers.ToList();
             return View();
         }
 
@@ -30,20 +54,25 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             {
                 _context.Courses.Add(course);
                 _context.SaveChanges();
-                return RedirectToAction("Index");
+
+                return RedirectToAction(nameof(Index));
             }
+
+            ViewBag.Teachers = _context.Teachers.ToList();
             return View(course);
         }
 
-        //  Only Teacher & Admin
+        // Edit Course
         [Authorize(Roles = "Teacher,Admin")]
         public IActionResult Edit(int id)
         {
             var course = _context.Courses.Find(id);
+
             if (course == null)
-            {
                 return NotFound();
-            }
+
+            ViewBag.Teachers = _context.Teachers.ToList();
+
             return View(course);
         }
 
@@ -51,23 +80,32 @@ namespace LearnBridge_E_LearningPlatform.Controllers
         [Authorize(Roles = "Teacher,Admin")]
         public IActionResult Edit(int id, Course course)
         {
-            if (id != course.CourseId) return NotFound();
+            if (id != course.CourseId)
+                return NotFound();
 
             if (ModelState.IsValid)
             {
                 _context.Courses.Update(course);
                 _context.SaveChanges();
+
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewBag.Teachers = _context.Teachers.ToList();
             return View(course);
         }
 
-        // Only Admin (optional decision)
+        // Delete
         [Authorize(Roles = "Admin")]
         public IActionResult Delete(int id)
         {
-            var course = _context.Courses.Find(id);
-            if (course == null) return NotFound();
+            var course = _context.Courses
+                .Include(c => c.Teacher)
+                .FirstOrDefault(c => c.CourseId == id);
+
+            if (course == null)
+                return NotFound();
+
             return View(course);
         }
 
@@ -76,33 +114,14 @@ namespace LearnBridge_E_LearningPlatform.Controllers
         public IActionResult DeleteConfirmed(int id)
         {
             var course = _context.Courses.Find(id);
+
             if (course != null)
             {
                 _context.Courses.Remove(course);
                 _context.SaveChanges();
             }
+
             return RedirectToAction(nameof(Index));
         }
-
-        public async Task<IActionResult> Details(int id)
-        {
-            var course = await _context.Courses
-                .Include(c=> c.Teacher)
-                .Include(c => c.Lessons)
-                .FirstOrDefaultAsync(c => c.CourseId == id);
-            if(course ==null)
-            {
-                 return NotFound();
-            }    
-            return View(course);
-        }
-
-        [HttpGet]
-        public IActionResult Index()
-         {
-            var courses = _context.Courses.ToList();
-            return View(courses);
     }
-
-}
 }
