@@ -2,54 +2,47 @@
 
 <h2>Lessons</h2>
 
-<a asp-action="Create" class="btn btn-success">Add Lesson</a>
+<a asp-action="Create" class="btn btn-success mb-3">Add Lesson</a>
 
-<table class="table">
-
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Title</th>
             <th>Course</th>
             <th>Video</th>
             <th>Material</th>
-            <th>Action</th>
+            <th>Actions</th>
         </tr>
     </thead>
-
     <tbody>
-
         @foreach (var item in Model)
         {
             <tr>
-
                 <td>@item.Title</td>
-
                 <td>@item.Course?.Title</td>
 
                 <td>
                     @if (!string.IsNullOrEmpty(item.VideoUrl))
                     {
-                        <a href="@item.VideoUrl" target="_blank">Watch</a>
+                        <a asp-action="Details" asp-route-id="@item.LessonId" target="_blank">
+                            Watch
+                        </a>
                     }
                 </td>
 
                 <td>
                     @if (!string.IsNullOrEmpty(item.MaterialFile))
                     {
-                        <a href="/materials/@item.MaterialFile" target="_blank">
-                            Download
-                        </a>
+                        <a href="/materials/@item.MaterialFile" target="_blank">Download</a>
                     }
                 </td>
 
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.LessonId">Edit</a> |
-                    <a asp-action="Delete" asp-route-id="@item.LessonId">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.LessonId" class="btn btn-sm btn-primary">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@item.LessonId" class="btn btn-sm btn-danger">Delete</a>
+                    <a asp-action="Details" asp-route-id="@item.LessonId" class="btn btn-sm btn-info">View</a>
                 </td>
-
             </tr>
         }
-
     </tbody>
-
 </table>

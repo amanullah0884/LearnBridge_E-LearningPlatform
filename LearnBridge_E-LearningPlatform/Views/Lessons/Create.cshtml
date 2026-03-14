@@ -2,21 +2,24 @@
 
 <h2>Create Lesson</h2>
 
-<form asp-action="Create" enctype="multipart/form-data">
+<form asp-action="Create" method="post" enctype="multipart/form-data">
 
     <div class="form-group">
-        <label>Lesson Title</label>
+        <label asp-for="Title"></label>
         <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label>Content</label>
+        <label asp-for="Content"></label>
         <textarea asp-for="Content" class="form-control"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label>Video URL</label>
+        <label asp-for="VideoUrl"></label>
         <input asp-for="VideoUrl" class="form-control" />
+        <span asp-validation-for="VideoUrl" class="text-danger"></span>
     </div>
 
     <div class="form-group">
@@ -25,11 +28,12 @@
     </div>
 
     <div class="form-group">
-        <label>Course</label>
+        <label asp-for="CourseId"></label>
         <select asp-for="CourseId"
                 asp-items="ViewBag.Courses"
                 class="form-control">
         </select>
+        <span asp-validation-for="CourseId" class="text-danger"></span>
     </div>
 
     <br />
@@ -39,3 +43,7 @@
     </button>
 
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

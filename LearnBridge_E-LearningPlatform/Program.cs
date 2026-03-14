@@ -28,6 +28,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 
 // Global Exception Middleware
 //app.UseMiddleware<ExceptionMiddleware>();

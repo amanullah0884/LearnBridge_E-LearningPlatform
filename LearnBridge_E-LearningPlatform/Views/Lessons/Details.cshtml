@@ -17,7 +17,16 @@
 
 @if (!string.IsNullOrEmpty(Model.MaterialFile))
 {
+    <br />
+
     <a href="/materials/@Model.MaterialFile" target="_blank">
+        View Material
+    </a>
+
+    <br />
+    <br />
+
+    <a href="/materials/@Model.MaterialFile" download>
         Download Material
     </a>
 }

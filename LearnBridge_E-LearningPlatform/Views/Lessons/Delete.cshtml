@@ -14,7 +14,9 @@
 
 </div>
 
-<form asp-action="Delete">
+<form asp-action="Delete" method="post">
+
+    @Html.AntiForgeryToken()
 
     <input type="hidden" asp-for="LessonId" />
 
