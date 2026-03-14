@@ -5,6 +5,7 @@ namespace LearnBridge_E_LearningPlatform.Models
     public class Teacher
     {
         public int TeacherId { get; set; }
+        public int TeacherName { get; set; }
 
         [Required]
         public int UserId { get; set; }

@@ -1,64 +1,55 @@
 ﻿@model IEnumerable<LearnBridge_E_LearningPlatform.Models.Lesson>
 
-@{
-    ViewData["Title"] = "Lessons List";
-}
+<h2>Lessons</h2>
 
-<h2 class="text-center mb-4">All Lessons</h2>
+<a asp-action="Create" class="btn btn-success">Add Lesson</a>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Add New Lesson</a>
-</p>
+<table class="table">
 
-<table class="table table-bordered table-striped mt-3">
-    <thead class="table-dark">
+    <thead>
         <tr>
             <th>Title</th>
-            <th>Content</th>
+            <th>Course</th>
             <th>Video</th>
             <th>Material</th>
-            <th>Course</th>
+            <th>Action</th>
         </tr>
     </thead>
+
     <tbody>
-        @foreach (var lesson in Model)
+
+        @foreach (var item in Model)
         {
             <tr>
-                <td>@lesson.Title</td>
-                <td>@lesson.Content</td>
 
-                <!-- Video Link -->
+                <td>@item.Title</td>
+
+                <td>@item.Course?.Title</td>
+
                 <td>
-                    @if (!string.IsNullOrEmpty(lesson.VideoUrl))
+                    @if (!string.IsNullOrEmpty(item.VideoUrl))
                     {
-                        <a href="@lesson.VideoUrl" target="_blank">Watch Video</a>
-                    }
-                    else
-                    {
-                        <span>No Video</span>
+                        <a href="@item.VideoUrl" target="_blank">Watch</a>
                     }
                 </td>
 
-                // Material File Link
                 <td>
-                    @if (!string.IsNullOrEmpty(lesson.MaterialFile))
+                    @if (!string.IsNullOrEmpty(item.MaterialFile))
                     {
-                        <a href="~/materials/@lesson.MaterialFile" target="_blank">Download</a>
-                    }
-                    else
-                    {
-                        <span>No Material</span>
+                        <a href="/materials/@item.MaterialFile" target="_blank">
+                            Download
+                        </a>
                     }
                 </td>
 
-                <td>@lesson.Course?.Title</td>
-
-                <!-- Actions -->
                 <td>
-                    <a asp-action="Edit" asp-route-id="@lesson.LessonId" class="btn btn-warning btn-sm">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@lesson.LessonId" class="btn btn-danger btn-sm">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.LessonId">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.LessonId">Delete</a>
                 </td>
+
             </tr>
         }
+
     </tbody>
+
 </table>

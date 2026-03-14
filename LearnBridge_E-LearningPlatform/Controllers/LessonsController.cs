@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http; // For IFormFile
-using System.IO;
 
 namespace LearnBridge_E_LearningPlatform.Controllers
 {
@@ -16,31 +14,46 @@ namespace LearnBridge_E_LearningPlatform.Controllers
             _context = context;
         }
 
+        // Lesson List
         public async Task<IActionResult> Index()
         {
-            var lessons = await _context.Lessons.Include(l => l.Course).ToListAsync();
+            var lessons = await _context.Lessons
+                .Include(l => l.Course)
+                .ToListAsync();
+
             return View(lessons);
         }
 
+
+
+        // Create GET
         [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title");
+            ViewBag.Courses = new SelectList(_context.Courses, "CourseId", "Title");
             return View();
         }
 
+        // Create POST
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public async Task<IActionResult> Create(Lesson lesson, IFormFile MaterialUpload)
         {
             if (ModelState.IsValid)
             {
-                // File upload handle
+                // File Upload
                 if (MaterialUpload != null && MaterialUpload.Length > 0)
                 {
-                    var fileName = Path.GetFileName(MaterialUpload.FileName);
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/materials", fileName);
-                   
+                    var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/materials");
+
+                    if (!Directory.Exists(uploadFolder))
+                    {
+                        Directory.CreateDirectory(uploadFolder);
+                    }
+
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(MaterialUpload.FileName);
+
+                    var filePath = Path.Combine(uploadFolder, fileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
@@ -50,92 +63,118 @@ namespace LearnBridge_E_LearningPlatform.Controllers
                     lesson.MaterialFile = fileName;
                 }
 
-                _context.Lessons.Add(lesson);
+                _context.Add(lesson);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title", lesson.CourseId);
+            ViewBag.Courses = new SelectList(_context.Courses, "CourseId", "Title", lesson.CourseId);
             return View(lesson);
         }
 
-        [HttpGet]
+        // Edit GET
         public async Task<IActionResult> Edit(int id)
         {
             var lesson = await _context.Lessons.FindAsync(id);
-            if (lesson == null) return NotFound();
 
-            ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title", lesson.CourseId);
+            if (lesson == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Courses = new SelectList(_context.Courses, "CourseId", "Title", lesson.CourseId);
+
             return View(lesson);
         }
 
+        // Edit POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Lesson lesson, IFormFile MaterialUpload)
         {
-            if (id != lesson.LessonId) return NotFound();
+            if (id != lesson.LessonId)
+            {
+                return NotFound();
+            }
 
             if (ModelState.IsValid)
             {
-                try
+                if (MaterialUpload != null && MaterialUpload.Length > 0)
                 {
-                    // File upload handle
-                    if (MaterialUpload != null && MaterialUpload.Length > 0)
+                    var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/materials");
+
+                    if (!Directory.Exists(uploadFolder))
                     {
-                        var fileName = Path.GetFileName(MaterialUpload.FileName);
-                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/materials", fileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await MaterialUpload.CopyToAsync(stream);
-                        }
-
-                        lesson.MaterialFile = fileName;
+                        Directory.CreateDirectory(uploadFolder);
                     }
 
-                    _context.Update(lesson);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(MaterialUpload.FileName);
+
+                    var filePath = Path.Combine(uploadFolder, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await MaterialUpload.CopyToAsync(stream);
+                    }
+
+                    lesson.MaterialFile = fileName;
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!LessonExists(lesson.LessonId)) return NotFound();
-                    else throw;
-                }
+
+                _context.Update(lesson);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
             }
 
-            ViewBag.Courses = new SelectList(_context.Courses.ToList(), "CourseId", "Title", lesson.CourseId);
+            ViewBag.Courses = new SelectList(_context.Courses, "CourseId", "Title", lesson.CourseId);
+
             return View(lesson);
         }
 
-        [HttpGet]
+        // Delete GET
         public async Task<IActionResult> Delete(int id)
         {
             var lesson = await _context.Lessons
                 .Include(l => l.Course)
                 .FirstOrDefaultAsync(m => m.LessonId == id);
 
-            if (lesson == null) return NotFound();
+            if (lesson == null)
+            {
+                return NotFound();
+            }
 
             return View(lesson);
         }
 
+        // Delete POST
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var lesson = await _context.Lessons.FindAsync(id);
+
             if (lesson != null)
             {
                 _context.Lessons.Remove(lesson);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToAction(nameof(Index));
         }
-
-        private bool LessonExists(int id)
+        // Lesson Details
+        public async Task<IActionResult> Details(int id)
         {
-            return _context.Lessons.Any(e => e.LessonId == id);
+            var lesson = await _context.Lessons
+                .Include(l => l.Course)
+                .FirstOrDefaultAsync(l => l.LessonId == id);
+
+            if (lesson == null)
+            {
+                return NotFound();
+            }
+
+            return View(lesson);
         }
     }
 }

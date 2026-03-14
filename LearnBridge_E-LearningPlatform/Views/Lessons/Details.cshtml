@@ -1,0 +1,23 @@
+﻿@model LearnBridge_E_LearningPlatform.Models.Lesson
+
+<h2>@Model.Title</h2>
+
+<p>@Model.Content</p>
+
+@if (!string.IsNullOrEmpty(Model.VideoUrl))
+{
+    <iframe width="560" height="315"
+            src="@Model.VideoUrl"
+            frameborder="0"
+            allowfullscreen>
+    </iframe>
+}
+
+<br />
+
+@if (!string.IsNullOrEmpty(Model.MaterialFile))
+{
+    <a href="/materials/@Model.MaterialFile" target="_blank">
+        Download Material
+    </a>
+}
