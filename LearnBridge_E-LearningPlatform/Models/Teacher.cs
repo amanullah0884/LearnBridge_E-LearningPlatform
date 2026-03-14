@@ -7,9 +7,8 @@ namespace LearnBridge_E_LearningPlatform.Models
         public int TeacherId { get; set; }
 
         [Required]
-        public string UserId { get; set; } = string.Empty;
-
-        public ApplicationUser? User { get; set; }
+        public int UserId { get; set; }
+        public User? User { get; set; }
 
         [MaxLength(200)]
         public string Expertise { get; set; } = string.Empty;

@@ -29,7 +29,7 @@ namespace LearnBridge_E_LearningPlatform.Models
 
             modelBuilder.Entity<Teacher>()
                 .HasOne(t => t.User)
-                .WithOne(u => u.Teacher)
+                .WithOne(static u => u.Teacher)
                 .HasForeignKey<Teacher>(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 

@@ -30,7 +30,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Global Exception Middleware
-app.UseMiddleware<ExceptionMiddleware>();
+//app.UseMiddleware<ExceptionMiddleware>();
 
 // Role Seed
 using (var scope = app.Services.CreateScope())
